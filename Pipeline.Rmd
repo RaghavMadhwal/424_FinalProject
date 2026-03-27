@@ -1,0 +1,18 @@
+```{r}
+# fastqc
+SAMPLES = [SRR3707574]
+
+rule all:
+    input:
+        expand("Results/QC/{sample}_fastqc.html", sample=SAMPLES)
+
+rule fastqc:
+    input:
+        "Data/{sample}.fastq.gz"
+    output:
+        "Results/QC/{sample}_fastqc.html",
+        "Results/QC/{sample}_fastqc.zip"
+    shell:
+        "fastqc {input} --outdir Results/QC/"
+```
+
