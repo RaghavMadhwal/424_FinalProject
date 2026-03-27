@@ -1,0 +1,74 @@
+---
+title: "BMEG 424 Final Project Report"
+author: "Raghav Madhwal (44874626), Alan Khakimov (37431558)"
+date: "2026-03-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Introduction
+
+The project report focuses and builds upon a differential expression (DE) analysis by RNA-seq to compare a murine erythroleukemia cell line (MEL) to a differentiation resistant derived cell line (MEL-R) [Fernández-Calleja et al., 2017]. The original experiment performd RNA isolation on the two cultured cell lines, prepared standard RNA-seq libraries, and sequences them using the Illumina GAIIx platform under a single read. These reads were deposited in the Gene Expression Omnibus (GEO) database (<http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE83567>) and utilized in the re-analysis.
+
+The reads then went through quality control (FAST-X Toolkit), and were mapped (TopHat) to a 2012 mouse reference genome (Mus_musculus_NCBI_build37.67.cdna, 30-04-2012). Finally, Cufflinks was used to perform a transcriptome expression quantification and Cuffdiff was used for differential expression analysis.
+
+As the original experiment was performed in 2017, the tools used in their pipeline and reference genome used is outdated.
+
+Overview of the original experiment Goals of the reanalysis Why you chose this re-analysis
+
+## 2. Method and Results
+
+The data
+
+Description of the methods used, what they do, and why you used them
+
+Analysis is appropriate, well motivated, described, interpreted, and correct Steps are properly validated
+
+### a. Pipeline Creation
+
+### b. Quality Control
+
+Quality control measures are appropriate to the data analyzed, described well, and properly motivated
+
+### c. Paper's Method vs. Modern Method
+
+### d. PCA
+
+### e. Clustering
+
+## Conclusion
+
+Well thought out summary of results, appropriate contrasts with original publication.
+
+## References
+
+Fernández-Calleja, V., Hernández, P., Schvartzman, J. B., Lacoba, M. G. de, & Krimer, D. B. (2017). Differential gene expression analysis by RNA-seq reveals the importance of actin cytoskeletal proteins in erythroleukemia cells. PeerJ, 5, e3432. <https://doi.org/10.7717/peerj.3432>
+
+## Appendix A: Pipeline (Command Prompt)
+
+```{bash, eval=FALSE}
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
