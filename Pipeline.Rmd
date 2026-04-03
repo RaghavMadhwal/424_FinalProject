@@ -1,4 +1,4 @@
-```{r}
+```{bash, eval=FALSE}
 # fastqc
 SAMPLES = [SRR3707574]
 
@@ -16,3 +16,155 @@ rule fastqc:
         "fastqc {input} --outdir Results/QC/"
 ```
 
+```{bash, eval=FALSE}
+
+SAMPLES = ["SRR3707574","SRR3707575","SRR3707576","SRR3707577","SRR3707578","SRR3707579","SRR3707580","SRR3707581","SRR3707582","SRR3707583","SRR3707584","SRR3707585"]
+
+GENOME = "../Refs/m38/GRCm39.primary_assembly.genome.fa"
+TRANSCRIPTS = "../Refs/m38/gencode.vM38.transcripts.fa.gz"
+GTF = "../Refs/m38/gencode.vM38.primary_assembly.annotation.gtf.gz"
+
+rule all:
+    input:
+        "../Results/featureCounts/counts.txt",
+        expand("../Results/salmon/{sample}/quant.sf", sample=SAMPLES)
+
+rule fastp:
+    input:
+        "../Data/{sample}.fastq.gz"
+    output:
+        "../Results/trimmed/{sample}.fastq.gz"
+    shell:
+        """
+        mkdir -p ../Results/trimmed
+        fastp \
+            -i {input} \
+            -o {output} \
+            -h ../Results/trimmed/{wildcards.sample}_fastp.html \
+            -j ../Results/trimmed/{wildcards.sample}_fastp.json
+        """
+
+rule hisat2_index:
+    input:
+        fasta=GENOME
+    output:
+        "../Refs/Indices/hisat2/idx.done"
+    params:
+        prefix="../Refs/Indices/hisat2/mouse_mm39"
+    shell:
+        """
+        mkdir -p ../Refs/Indices/hisat2
+        hisat2-build  {input.fasta}  {params.prefix}
+        touch {output}
+        """
+
+rule hisat2_align:
+    input:
+        reads="../Results/trimmed/{sample}.fastq.gz",
+        idx="../Refs/Indices/hisat2/idx.done"
+    output:
+        "../Results/hisat2/{sample}.sam"
+    params:
+        index_prefix="../Refs/Indices/hisat2/mouse_mm39"
+    shell:
+        """
+        mkdir -p ../Results/hisat2
+        hisat2 \
+            -x {params.index_prefix} \
+            -U {input.reads} \
+            -S {output}
+        """
+
+rule samtools_sort:
+    input:
+        "../Results/hisat2/{sample}.sam"
+    output:
+        "../Results/hisat2/{sample}.bam"
+    shell:
+        """
+        samtools view -bS {input} | samtools sort -o {output}
+        """
+
+rule samtools_index:
+    input:
+        "../Results/hisat2/{sample}.bam"
+    output:
+        "../Results/hisat2/{sample}.bam.bai"
+    shell:
+        """
+        samtools index {input}
+        """
+
+rule featurecounts:
+    input:
+        bams=expand("../Results/hisat2/{sample}.bam", sample=SAMPLES),
+        gtf=GTF
+    output:
+        "../Results/featureCounts/counts.txt"
+    shell:
+        """
+        mkdir -p ../Results/featureCounts
+        featureCounts \
+            -a {input.gtf} \
+            -o {output} \
+            -t exon \
+            -g gene_id \
+            -s 0 \
+            {input.bams}
+        """
+
+rule create_decoys:
+    input:
+        genome=GENOME
+    output:
+        "../Refs/m38/decoys.txt"
+    shell:
+        """
+        zgrep '^>' {input.genome} | cut -d ' ' -f 1 | sed 's/>//g' > {output}
+        """
+
+rule create_gentrome:
+    input:
+        tra=TRANSCRIPTS,
+        gen=GENOME
+    output:
+        "../Refs/m38/gentrome.fa.gz"
+    shell:
+        """
+        (zcat {input.tra}; cat {input.gen}) | gzip > {output}
+        """
+
+rule salmon_index:
+    input:
+        gent="../Refs/m38/gentrome.fa.gz",
+        dec="../Refs/m38/decoys.txt"
+    output:
+        directory("../Refs/Indices/salmon_index")
+    shell:
+        """
+        salmon index \
+            -t {input.gent} \
+            -d {input.dec} \
+            -i {output}
+        """
+
+rule salmon_quant:
+    input:
+        reads="../Results/trimmed/{sample}.fastq.gz",
+        index="../Refs/Indices/salmon_index"
+    output:
+        "../Results/salmon/{sample}/quant.sf"
+    shell:
+        """
+        mkdir -p ../Results/salmon/{wildcards.sample}
+        salmon quant \
+            -i {input.index} \
+            -l A \
+            -r {input.reads} \
+            --validateMappings \
+            --gcBias \
+            --fldMean 200 \
+            --fldSD 20 \
+            -o ../Results/salmon/{wildcards.sample}
+        """
+```

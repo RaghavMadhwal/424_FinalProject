@@ -1,0 +1,15 @@
+Status	../Results/hisat2/SRR3707574.bam	../Results/hisat2/SRR3707575.bam	../Results/hisat2/SRR3707576.bam	../Results/hisat2/SRR3707577.bam	../Results/hisat2/SRR3707578.bam	../Results/hisat2/SRR3707579.bam	../Results/hisat2/SRR3707580.bam	../Results/hisat2/SRR3707581.bam	../Results/hisat2/SRR3707582.bam	../Results/hisat2/SRR3707583.bam	../Results/hisat2/SRR3707584.bam	../Results/hisat2/SRR3707585.bam
+Assigned	2479836	2519277	2545562	2583127	2576556	2546208	1808632	2452654	2499349	2538243	2513077	1138918
+Unassigned_Unmapped	172717	175999	178541	182334	180040	175292	123130	191643	197550	201566	194731	87414
+Unassigned_Read_Type	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_Singleton	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_MappingQuality	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_Chimera	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_FragmentLength	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_Duplicate	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_MultiMapping	1972778	2002169	2015392	2042898	2045298	2025927	1440652	2053301	2088675	2120867	2101657	951857
+Unassigned_Secondary	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_NonSplit	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_NoFeatures	172858	175435	175252	176503	177645	175842	126327	187905	189775	192205	190223	86986
+Unassigned_Overlapping_Length	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_Ambiguity	183215	187858	191171	194830	194211	190647	133579	182521	188998	193340	189066	84226
