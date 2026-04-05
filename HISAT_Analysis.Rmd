@@ -1,0 +1,283 @@
+```{r}
+#load the Metadata table
+table <- read.csv("SraRunTable.csv")
+metadata <- data.frame(
+  row.names = table$Run,
+  condition = factor(table$cell_line)
+)
+```
+
+```{r}
+# libraries
+library(DESeq2)
+library(ggplot2)
+library(pheatmap)
+library(dplyr)
+library(apeglm)
+library(clusterProfiler)
+library(org.Mm.eg.db)
+```
+
+```{r}
+#load raw count data
+count_data <- read.table("featureCounts/counts.txt", header=TRUE, row.names=1, check.names=FALSE)
+```
+
+```{r}
+# separate for look up and DESeq2 workflow
+gene_annotations <- count_data[, 1:5]
+counts <- count_data[, 6:ncol(count_data)]
+colnames(counts) <- gsub(".*(SRR[0-9]+).*", "\\1", colnames(counts))
+```
+
+```{r}
+# strip row labels of version number (decimals)
+rownames(counts) <- gsub("\\..*", "", rownames(counts))
+
+# check if this introduces dups
+any(duplicated(rownames(counts)))
+```
+```{r}
+# Create the DESeqDataSet
+dds_hisat <- DESeqDataSetFromMatrix(countData = counts,
+                                    colData = metadata,
+                                    design = ~ condition)
+```
+
+```{r}
+# Pre Filtering
+# Drop low count genes across all samples
+
+global_counts <- rowSums(counts(dds_hisat))
+
+keep_global <- global_counts >= 10
+dds_hisat <- dds_hisat[keep_global,]
+
+# Remaining genes
+nrow(dds_hisat)
+```
+```{r}
+# QC, check if the difference in the groups is happening due to the treatment
+# Use VST normalization for visualizing
+vsd <- vst(dds_hisat, blind=FALSE)
+
+# 1. Capture the PCA data first so we can manipulate it
+pcaData <- plotPCA(vsd, intgroup="condition", returnData=TRUE)
+percentVar <- round(100 * attr(pcaData, "percentVar"))
+
+# 2. Build the professional plot
+ggplot(pcaData, aes(PC1, PC2, color=condition)) +
+  geom_point(size=3) +
+  xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+  ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+  coord_cartesian(ylim = c(-3, 3)) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.title = element_text(size=12, face="bold")) +
+  ggtitle("Principal Component Analysis of MEL vs MEL-R")
+```
+
+```{r}
+# Sum the counts for each column (sample)
+colSums(counts(dds_hisat))
+
+# Plot it to see if any sample is dramatically smaller/larger
+barplot(colSums(counts(dds_hisat)), 
+        main="Total Reads per Sample", 
+        ylab="Library Size", 
+        las=2, 
+        cex.names=0.5)
+```
+```{r}
+# Run DESeq2
+
+dds_complete <- DESeq(dds_hisat)
+```
+```{r}
+resultsNames(dds_complete)
+levels(dds_complete$condition)
+```
+
+```{r}
+# Apply the shrinkage (using the existing coefficient)
+resLFC <- lfcShrink(dds_complete, coef=2, type="apeglm")
+
+# Filter using (p-adj < 0.05 and |LFC| > 1)
+sig_genes <- subset(resLFC, padj < 0.05 & abs(log2FoldChange) > 1)
+
+print(paste("Final Significant Gene Count:", nrow(sig_genes)))
+```
+```{r}
+gene_symbols <- mapIds(org.Mm.eg.db,
+                     keys=rownames(sig_genes),
+                     column="SYMBOL",
+                     keytype="ENSEMBL",
+                     multiVals="first")
+
+sig_genes$symbol <- gene_symbols
+mapped_genes <- sum(!is.na(gene_symbols))
+mapped_genes
+sig_genes <- sig_genes[!is.na(sig_genes$symbol), ]
+```
+```{r}
+# Create Global Heatmap
+vsd <- vst(dds_complete, blind=FALSE)
+
+# Sort by significance for better visualization
+all_sig_ordered <- sig_genes[order(sig_genes$padj), ]
+global_matrix <- assay(vsd)[rownames(all_sig_ordered), ]
+
+# Fig 1A
+pheatmap(global_matrix,
+         cluster_rows = TRUE, 
+         cluster_cols = TRUE, 
+         show_rownames = FALSE,
+         scale = "row",
+         annotation_col = as.data.frame(colData(dds_complete)[,"condition", drop=FALSE]),
+         color = colorRampPalette(c("navy", "white", "firebrick3"))(100),
+         main = "Replication Fig 1A: Global Signature (|LFC|>1)")
+```
+
+```{r}
+# Figure 1B - Using top 50 significant genes
+vsd <- vst(dds_complete, blind=FALSE)
+all_sig_ordered <- sig_genes[order(sig_genes$padj), ]
+top50_sig <- head(all_sig_ordered, 50)
+plot_matrix <- assay(vsd)[rownames(top50_sig), ]
+rownames(plot_matrix) <- top50_sig$symbol
+
+plot_matrix_scaled <- t(scale(t(plot_matrix)))
+
+# Forces the scale from -2 to 3
+my_breaks <- seq(-2, 3, length.out = 101)
+my_colors <- colorRampPalette(c("navy", "white", "firebrick3"))(100)
+
+pdf("Replication_Fig1B.pdf", width = 8, height = 10)
+pheatmap(plot_matrix_scaled, 
+         breaks = my_breaks,          
+         legend_breaks = c(-2, -1, 0, 1, 2, 3),
+         cluster_rows = TRUE, 
+         cluster_cols = TRUE, 
+         show_rownames = TRUE,
+         scale = "none",              
+         annotation_col = as.data.frame(colData(dds_complete)[, "condition", drop=FALSE]),
+         color = my_colors,
+         main = "Replication Fig 1B: Adjusted Range (-2 to 3)")
+dev.off()
+```
+```{r}
+#Figure 1B - Direct Replica using their gene names
+paper_list <- c(
+  "Spi1",      # The master regulator (formerly Sfpi1/PU.1)
+  "Was", "Btk", "Rac2", "Dock2", "Plek", # The "Core Five" they discuss
+  "Nckap1l", "Fgd3", "Arhgef10l", "Thy1", "Itgb2", # Actin regulatory network
+  "Coro1a", "Evl", "Lcp2", "Vav1", "Hcls1", "Cd48", # Hematopoietic signaling
+  "Bin2", "Inpp5d", "Ptprc", "Cyba", "Ncf1", "Ncf2", "Ncf4" # Additional hits
+)
+
+paper_subset <- sig_genes[sig_genes$symbol %in% paper_list, ]
+plot_matrix <- assay(vsd)[rownames(paper_subset), ]
+rownames(plot_matrix) <- paper_subset$symbol
+
+plot_matrix_scaled <- t(scale(t(plot_matrix)))
+
+my_breaks <- seq(-2, 3, length.out = 101)
+my_colors <- colorRampPalette(c("navy", "white", "firebrick3"))(100)
+
+pdf("Replication_Fig1B_Targeted.pdf", width = 8, height = 10)
+
+pheatmap(plot_matrix_scaled, 
+         breaks = my_breaks,              
+         legend_breaks = c(-2, -1, 0, 1, 2, 3), 
+         cluster_rows = TRUE, 
+         cluster_cols = FALSE,
+         show_rownames = TRUE,
+         fontsize_row = 10,     
+         scale = "none",                  
+         annotation_col = as.data.frame(colData(dds_complete)[, "condition", drop=FALSE]),
+         color = my_colors,
+         main = "Replication Fig 1B: Targeted Paper Gene Set (-2 to 3)")
+
+dev.off()
+
+```
+
+```{r}
+# Figure 1C - Histone
+histone_list <- c(
+  "H2ax", "H1f0", "H1f2", "H3f3b", "H2afz", # Core Histones
+  "Hmgb1", "Hmgb2",                         # High mobility group proteins
+  "Sptan1", "Gatad2a", "Psmc3",             # Chromatin remodeling/associated
+  "Anxa2", "Top2a", "Dppa5a"                # Other markers from their 1C/1D
+)
+
+# 2. Extract from your 1,633 sig_genes
+# We use %in% to find the matches in your 'symbol' column
+histone_subset <- sig_genes[sig_genes$symbol %in% histone_list, ]
+
+# 3. Prepare the matrix (using VSD data we already calculated)
+mat_1c <- assay(vsd)[rownames(histone_subset), ]
+rownames(mat_1c) <- histone_subset$symbol
+
+# 4. Manual Scaling to -2 to 3
+mat_1c_scaled <- t(scale(t(mat_1c)))
+# 5. Save to PDF
+pdf("Replication_Fig1C_Histones.pdf", width = 8, height = 8)
+
+pheatmap(mat_1c_scaled, 
+         breaks = my_breaks,              # Using the -2 to 3 scale from before
+         legend_breaks = c(-2, -1, 0, 1, 2, 3), 
+         cluster_rows = TRUE, 
+         cluster_cols = FALSE,            # Keep MEL on left, MEL-R on right
+         show_rownames = TRUE,
+         fontsize_row = 11, 
+         scale = "none",                  
+         annotation_col = as.data.frame(colData(dds_complete)[, "condition", drop=FALSE]),
+         color = my_colors,
+         main = "Replication Fig 1C: Histone & Chromatin Signature")
+
+dev.off()
+```
+```{r}
+# Cluster Profiler
+genes_down <- sig_genes[sig_genes$log2FoldChange < 0, "symbol"]
+genes_up <- sig_genes[sig_genes$log2FoldChange > 0, "symbol"]
+
+# 2. Run GO Enrichment for Downregulated genes (The "Identity Loss")
+ego_down <- enrichGO(gene          = genes_down,
+                     OrgDb         = org.Mm.eg.db,
+                     keyType       = 'SYMBOL',
+                     ont           = "BP", # Biological Process
+                     pAdjustMethod = "BH",
+                     pvalueCutoff  = 0.05)
+
+# 3. Visualizing the top 10 lost pathways
+dotplot(ego_down, showCategory=10) + 
+  ggtitle("Pathways Lost in Resistant MEL-R Cells")
+```
+```{r}
+genelist_vector <- sig_genes$log2FoldChange
+names(genelist_vector) <- sig_genes$symbol
+
+cnetplot(ego_down, 
+         foldChange = genelist_vector, 
+         layout = "kk",          # 'kk' is Kamada-Kawai, often cleaner than circular
+         showCategory = 5,       # Focuses on the top 5 most significant pathways
+         color_category = "firebrick") + 
+  ggtitle("Gene-Concept Network: Hubs of Resistance")
+```
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
