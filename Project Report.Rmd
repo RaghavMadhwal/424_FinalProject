@@ -11,11 +11,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## 1. Introduction
 
-The project report revisits and builds upon a differential expression (DE) analysis by RNA-seq to compare a murine erythroleukemia cell line (MEL) to a differentiation resistant derived cell line (MEL-R) [Fernández-Calleja et al., 2017]. The original experiment performed RNA isolation on the two cultured cell lines, prepared standard RNA-seq libraries, and sequences them using the Illumina GAIIx platform under a single read. These reads were deposited in the Gene Expression Omnibus (GEO) database (<http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE83567>) and are utilized in this re-analysis.
+The project report revisits and builds upon a differential expression (DE) analysis by RNA-seq to compare a murine erythroleukemia cell line (MEL) to a differentiation resistant derived cell line (MEL-R) [Fernández-Calleja et al., 2017]. The original experiment performed RNA isolation on the two cultured cell lines, prepared standard RNA-seq libraries, and sequenced them using the Illumina GAIIx platform as single-end reads. These reads were deposited in the Gene Expression Omnibus (GEO) database (<http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE83567>) and are utilized in this re-analysis.
 
-In the original workflow, the reads went through quality control (FAST-X Toolkit), were pre-processed to remove adapters (BWA), and mapped (TopHat) to a 2012 mouse reference genome (GRCm37, 30-04-2012). Finally, Cufflinks was used to perform a transcriptome expression quantification and Cuffdiff was used for differential expression analysis.
+In the original workflow, the reads went through quality control (FASTX-Toolkit), were pre-processed to remove adapters, and mapped (TopHat) to a 2012 mouse reference genome (GRCm38, 30-04-2012). Finally, Cufflinks was used to perform a transcriptome expression quantification, and Cuffdiff was used for differential expression analysis. (The pipeline code for the original paper was not included).
 
-As the original experiment was performed in 2017, the tools used in their pipeline and reference genome used is outdated. This project aims to reanalyze the RNA-Seq data with modern methods of analysis. The report aims to build the results of Fernández-Calleja et al., 2017 with tools that are more detailed, accurate, and utilize more robust statistical methods. The reference genome used will also be a more recent version, which may provide better downstream results. By comparing the results from the original workflow to the updated pipeline, this report aims to evaluate the impact of advancements in genome bioinformatics on data interpretation.
+Since the original experiment was performed in 2017, both the tools used in their pipeline and reference genome are now outdated. Accurate and splice-aware aligners (such as HISAT2) have superseded TopHat, while Cufflinks/Cuffdiffs has been replaced by improved, more robust, and faster approaches, like Salmon. Furthermore, the mouse reference genome has updated to GCRm39, which could affect gene-level results.
+
+This project aims to reanalyze the RNA-Seq data with these modern methods of analysis. The report aims to build the results of Fernández-Calleja et al., 2017 with tools that are more detailed, accurate, and utilize more robust statistical methods. The reference genome used will also be a more recent version, which may provide better downstream results. By comparing the results from the original workflow to the updated pipeline, this report aims to evaluate the impact of advancements in genome bioinformatics on data interpretation.
 
 ## 2. Method and Results
 
@@ -39,7 +41,7 @@ Analysis is appropriate, well motivated, described, interpreted, and correct Ste
 
 Quality control measures are appropriate to the data analyzed, described well, and properly motivated
 
-### c. Comparison of Results
+### c. DESeq2
 
 ### d. PCA
 
