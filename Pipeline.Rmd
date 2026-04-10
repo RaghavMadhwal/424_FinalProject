@@ -29,7 +29,6 @@ SAMPLES = ["SRR3707574","SRR3707575","SRR3707576","SRR3707577","SRR3707578","SRR
 GENOME = "../Refs/m38/GRCm39.primary_assembly.genome.fa"
 TRANSCRIPTS = "../Refs/m38/gencode.vM38.transcripts.fa.gz"
 GTF = "../Refs/m38/gencode.vM38.primary_assembly.annotation.gtf.gz"
-
 rule all:
     input:
         "../Results/featureCounts/counts.txt",
