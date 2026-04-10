@@ -81,7 +81,7 @@ rule samtools_sort:
         "../Results/hisat2/{sample}.bam"
     shell:
         """
-        samtools view -bS {input} | samtools sort -o {output}
+        samtools view -b -S {input} | samtools sort -o {output}
         """
 #Step 4: BAM to BAM.BAI
 rule samtools_index:
@@ -116,7 +116,7 @@ rule create_decoys:
         """
         zgrep '^>' {input.genome} | cut -d ' ' -f 1 | sed 's/>//g' > {output}
         """
-#Step 2: Cat genome and transcriptome into gentrome. Maps against transcripts (but genome used as decoy)
+#Step 2: Cat genome and transcriptome into gentrome. Salmon maps against transcripts, with genomic reads ignored.
 rule create_gentrome:
     input:
         tra=TRANSCRIPTS,
@@ -138,7 +138,7 @@ rule salmon_index:
         """
         salmon index -t {input.gent} -d {input.dec} -i {output}
         """
-#Step 4: Quasi-mapping to quantify each sample
+#Step 4: Quantify each sample
 #Average length of libraries noted to be 337–367 nt
 rule salmon_quant:
     input:
