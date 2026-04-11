@@ -58,13 +58,33 @@ nrow(dds_hisat)
 ```
 ```{r}
 # QC, check if the difference in the groups is happening due to the treatment
-# Use VST normalization for visualizing
+# Use VST normalization to make variance somewhat constant (accounting for low expression genes)
 vsd <- vst(dds_hisat, blind=FALSE)
+
+# extract top contributors to PC1
+rv <- rowVars(assay(vsd))
+select <- order(rv, decreasing = TRUE)[seq_len(min(500, length(rv)))]
+pca_res <- prcomp(t(assay(vsd)[select, ]))
+
+# Get the loadings (rotation)
+loadings <- as.data.frame(pca_res$rotation)
+
+top_10_pc1_genes <- loadings[order(abs(loadings$PC1), decreasing = TRUE), ][1:10, ]
+
+print("Top 10 Genes contributing to PC1:")
+gene_symbols <- mapIds(org.Mm.eg.db, 
+                       keys = rownames(top_10_pc1_genes), 
+                       column = "SYMBOL", 
+                       keytype = "ENSEMBL", 
+                       multiVals = "first")
+
+print(gene_symbols)
 
 # 1. Capture the PCA data first so we can manipulate it
 pcaData <- plotPCA(vsd, intgroup="condition", returnData=TRUE)
 percentVar <- round(100 * attr(pcaData, "percentVar"))
 
+pdf("Final Plots HISAT/PCA_HISAT.pdf", width = 7, height = 7)
 # 2. Build the professional plot
 ggplot(pcaData, aes(PC1, PC2, color=condition)) +
   geom_point(size=3) +
@@ -75,12 +95,16 @@ ggplot(pcaData, aes(PC1, PC2, color=condition)) +
   theme(panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         axis.title = element_text(size=12, face="bold")) +
-  ggtitle("Principal Component Analysis of MEL vs MEL-R")
+  ggtitle("Principal Component Analysis of MEL vs MEL-R - HISAT")
+
+dev.off()
 ```
 
 ```{r}
 # Sum the counts for each column (sample)
 colSums(counts(dds_hisat))
+
+pdf("Final Plots HISAT/Total_Reads_HISAT.pdf", width = 14, height = 8)
 
 # Plot it to see if any sample is dramatically smaller/larger
 barplot(colSums(counts(dds_hisat)), 
@@ -88,6 +112,7 @@ barplot(colSums(counts(dds_hisat)),
         ylab="Library Size", 
         las=2, 
         cex.names=0.5)
+dev.off()
 ```
 ```{r}
 # Run DESeq2
@@ -128,6 +153,8 @@ vsd <- vst(dds_complete, blind=FALSE)
 all_sig_ordered <- sig_genes[order(sig_genes$padj), ]
 global_matrix <- assay(vsd)[rownames(all_sig_ordered), ]
 
+pdf("Final Plots HISAT/Total_Heatmap_HISAT.pdf", width = 10, height = 14)
+
 # Fig 1A
 pheatmap(global_matrix,
          cluster_rows = TRUE, 
@@ -137,6 +164,7 @@ pheatmap(global_matrix,
          annotation_col = as.data.frame(colData(dds_complete)[,"condition", drop=FALSE]),
          color = colorRampPalette(c("navy", "white", "firebrick3"))(100),
          main = "Replication Fig 1A: Global Signature (|LFC|>1)")
+dev.off()
 ```
 
 ```{r}
@@ -153,7 +181,7 @@ plot_matrix_scaled <- t(scale(t(plot_matrix)))
 my_breaks <- seq(-2, 3, length.out = 101)
 my_colors <- colorRampPalette(c("navy", "white", "firebrick3"))(100)
 
-pdf("Replication_Fig1B.pdf", width = 8, height = 10)
+pdf("Final Plots HISAT/Replication_Fig1B_HISAT.pdf", width = 8, height = 10)
 pheatmap(plot_matrix_scaled, 
          breaks = my_breaks,          
          legend_breaks = c(-2, -1, 0, 1, 2, 3),
@@ -169,11 +197,11 @@ dev.off()
 ```{r}
 #Figure 1B - Direct Replica using their gene names
 paper_list <- c(
-  "Spi1",      # The master regulator (formerly Sfpi1/PU.1)
+  "Spi1",      # (formerly Sfpi1/PU.1)
   "Was", "Btk", "Rac2", "Dock2", "Plek", # The "Core Five" they discuss
   "Nckap1l", "Fgd3", "Arhgef10l", "Thy1", "Itgb2", # Actin regulatory network
   "Coro1a", "Evl", "Lcp2", "Vav1", "Hcls1", "Cd48", # Hematopoietic signaling
-  "Bin2", "Inpp5d", "Ptprc", "Cyba", "Ncf1", "Ncf2", "Ncf4" # Additional hits
+  "Bin2", "Inpp5d", "Ptprc", "Cyba", "Ncf1", "Ncf2", "Ncf4" # Additional
 )
 
 paper_subset <- sig_genes[sig_genes$symbol %in% paper_list, ]
@@ -185,7 +213,7 @@ plot_matrix_scaled <- t(scale(t(plot_matrix)))
 my_breaks <- seq(-2, 3, length.out = 101)
 my_colors <- colorRampPalette(c("navy", "white", "firebrick3"))(100)
 
-pdf("Replication_Fig1B_Targeted.pdf", width = 8, height = 10)
+pdf("Final Plots HISAT/Replication_Fig1B_Targeted_HISAT.pdf", width = 8, height = 10)
 
 pheatmap(plot_matrix_scaled, 
          breaks = my_breaks,              
@@ -204,72 +232,56 @@ dev.off()
 ```
 
 ```{r}
-# Figure 1C - Histone
-histone_list <- c(
-  "H2ax", "H1f0", "H1f2", "H3f3b", "H2afz", # Core Histones
-  "Hmgb1", "Hmgb2",                         # High mobility group proteins
-  "Sptan1", "Gatad2a", "Psmc3",             # Chromatin remodeling/associated
-  "Anxa2", "Top2a", "Dppa5a"                # Other markers from their 1C/1D
-)
+core_targets <- c("Hmgb1", "Hmgb2", "Sptan1", "Gatad2a", "Psmc3", "Anxa2", "Top2a", "Dppa5a")
 
-# 2. Extract from your 1,633 sig_genes
-# We use %in% to find the matches in your 'symbol' column
-histone_subset <- sig_genes[sig_genes$symbol %in% histone_list, ]
+# ^H[0-9] catches H1, H2, H3, H4
+# hist catches anything with "histone" in the name
+pattern <- "^H[0-9]|hist"
 
-# 3. Prepare the matrix (using VSD data we already calculated)
-mat_1c <- assay(vsd)[rownames(histone_subset), ]
-rownames(mat_1c) <- histone_subset$symbol
+histone_subset <- sig_genes[grepl(pattern, sig_genes$symbol, ignore.case = TRUE) | 
+                            sig_genes$symbol %in% core_targets, ]
 
-# 4. Manual Scaling to -2 to 3
-mat_1c_scaled <- t(scale(t(mat_1c)))
-# 5. Save to PDF
-pdf("Replication_Fig1C_Histones.pdf", width = 8, height = 8)
+if(nrow(histone_subset) >= 2) {
+    
+    mat_1c <- assay(vsd)[rownames(histone_subset), ]
+    rownames(mat_1c) <- histone_subset$symbol
+    mat_1c_scaled <- t(scale(t(mat_1c)))
+    mat_1c_scaled <- mat_1c_scaled[complete.cases(mat_1c_scaled), ]
 
-pheatmap(mat_1c_scaled, 
-         breaks = my_breaks,              # Using the -2 to 3 scale from before
-         legend_breaks = c(-2, -1, 0, 1, 2, 3), 
-         cluster_rows = TRUE, 
-         cluster_cols = FALSE,            # Keep MEL on left, MEL-R on right
-         show_rownames = TRUE,
-         fontsize_row = 11, 
-         scale = "none",                  
-         annotation_col = as.data.frame(colData(dds_complete)[, "condition", drop=FALSE]),
-         color = my_colors,
-         main = "Replication Fig 1C: Histone & Chromatin Signature")
-
-dev.off()
-```
-```{r}
-# Cluster Profiler
-genes_down <- sig_genes[sig_genes$log2FoldChange < 0, "symbol"]
-genes_up <- sig_genes[sig_genes$log2FoldChange > 0, "symbol"]
-
-# 2. Run GO Enrichment for Downregulated genes (The "Identity Loss")
-ego_down <- enrichGO(gene          = genes_down,
-                     OrgDb         = org.Mm.eg.db,
-                     keyType       = 'SYMBOL',
-                     ont           = "BP", # Biological Process
-                     pAdjustMethod = "BH",
-                     pvalueCutoff  = 0.05)
-
-# 3. Visualizing the top 10 lost pathways
-dotplot(ego_down, showCategory=10) + 
-  ggtitle("Pathways Lost in Resistant MEL-R Cells")
+    pdf("Final Plots HISAT/Salmon_Replication_Fig1C_Histones_HISAT.pdf", width = 10, height = 14)
+    
+    pheatmap(mat_1c_scaled, 
+             breaks = my_breaks,            
+             legend_breaks = c(-2, -1, 0, 1, 2, 3), 
+             cluster_rows = TRUE, 
+             cluster_cols = FALSE,           
+             show_rownames = TRUE,
+             fontsize_row = 10, 
+             scale = "none",                  
+             annotation_col = as.data.frame(colData(dds_complete)[, "condition", drop=FALSE]),
+             color = my_colors,
+             main = "Replication Fig 1C: Histone & Chromatin Signature (Keyword Search)")
+    
+    dev.off()
+    
+} else {
+    print("Not enough genes found with 'H' or 'hist' keywords.")
+}
 ```
 ```{r}
 genelist_vector <- sig_genes$log2FoldChange
 names(genelist_vector) <- sig_genes$symbol
 
+pdf("Final Plots HISAT/Spider_Net_HISAT.pdf", width = 8, height = 8)
+
 cnetplot(ego_down, 
          foldChange = genelist_vector, 
-         layout = "kk",          # 'kk' is Kamada-Kawai, often cleaner than circular
-         showCategory = 5,       # Focuses on the top 5 most significant pathways
+         layout = "kk",   
+         showCategory = 5,    
          color_category = "firebrick") + 
   ggtitle("Gene-Concept Network: Hubs of Resistance")
-```
 
-```{r}
-
+dev.off()
 ```
 
 
