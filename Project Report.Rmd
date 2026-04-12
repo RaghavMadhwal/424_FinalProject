@@ -39,11 +39,11 @@ Refer to [Appendix B](#appendix-B) for the full pipeline code.
 
 ### b. Trimmed Reads Quality Control {#part-b}
 
-As seen in Table 1, all 12 samples kept a high proportion of reads, with pass rates between 96.5% to 98.1%. There seemed to be no contamination or bias between the MEL/MEL-R samples. GC content was consistent across all 12 samples, ranging from 48.2% to 48.8%. This uniformity suggests the absence of contamination or systematic library preparation bias between samples. The sequencing depth did vary across samples. The six MEL replicates had \~3.70–3.79M raw reads each. But, two MEL-R samples had lower depth: SRR3707580 (2.67M reads) and SRR3707585 (1.71M reads). This could limit statistical power for detecting lower expressed differentially expressed genes.
+As seen in Table 1, all 12 samples kept a high proportion of reads, with pass rates between 96.5% to 98.1%. There seemed to be no contamination or bias between the MEL/MEL-R samples. GC content was consistent across all 12 samples, ranging from 48.2% to 48.8%. This uniformity suggests the absence of contamination or systematic library preparation bias between samples. The sequencing depth did vary across samples. The six MEL replicates had \~3.70--3.79M raw reads each. But, two MEL-R samples had lower depth: SRR3707580 (2.67M reads) and SRR3707585 (1.71M reads). This could limit statistical power for detecting lower expressed differentially expressed genes.
 
 ![Table 1. Summary of fastp quality control metrics](Table1.png)
 
-Read length was 75 bp across all samples, consistent with the single-end sequencing protocol reported by Fernández-Calleja et al. (2017). Base quality was high across all samples. Q20 rates ranged from 96.9% to 98.4% and Q30 rates from 91.7% to 95.0%. The results show that fastp had a minor (but still beneficial) effect on removing low-quality bases and adapter sequences. Duplication rates were reported by fastp at 21–29%, though true duplicates can’t be distinguished from independent fragments that share identical short sequences. Thus, these estimates are probably unreliable for the single-end data.
+Read length was 75 bp across all samples, consistent with the single-end sequencing protocol reported by Fernández-Calleja et al. (2017). Base quality was high across all samples. Q20 rates ranged from 96.9% to 98.4% and Q30 rates from 91.7% to 95.0%. The results show that fastp had a minor (but still beneficial) effect on removing low-quality bases and adapter sequences. Duplication rates were reported by fastp at 21--29%, though true duplicates can't be distinguished from independent fragments that share identical short sequences. Thus, these estimates are probably unreliable for the single-end data.
 
 ### c. R Quality Control
 
@@ -63,8 +63,53 @@ Claude was used to make pipeline code: <https://claude.ai/share/4a01406c-0372-47
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+library(knitr)
+```
+
+```{r, echo=FALSE, fig.cap="Read counts, comparing Salmon vs. HISAT.", out.width="110%", fig.align="center"}
+
+knitr::include_graphics("Combined Plots/Read_Counts.png")
+```
+
+```{r, echo=FALSE, fig.cap="PCA plot comparing Salmon to HISAT2 results.", out.width="110%", fig.align="center"}
+
+knitr::include_graphics("Combined Plots/PCA.png")
+```
+
+```{r, echo=FALSE, fig.cap="Fig 1A Replication, genes ordered by adjusted p value for each method.", out.width="110%", fig.align="center"}
+
+knitr::include_graphics("Combined Plots/Fig 1A.png")
+```
+
+```{r, echo=FALSE, fig.cap="Fig 1B Replication, top 50 genes from each method.", out.width="110%", fig.align="center"}
+
+knitr::include_graphics("Combined Plots/Fig 1B.png")
+```
+
+```{r, echo=FALSE, fig.cap="Fig 1C Replication, histone gene expression.", out.width="110%", fig.align="center"}
+
+knitr::include_graphics("Combined Plots/Fig 1C.png")
+```
+
+```{r, echo=FALSE, fig.cap="Cluster Profiler analysis with Go, down regulated / lost pathways.", out.width="110%", fig.align="center"}
+
+knitr::include_graphics("Combined Plots/ClusterProfiler_Down.png")
+```
+
+```{r, echo=FALSE, fig.cap="Cluster Profiler analysis with Go, up regulated / gained pathways.", out.width="110%", fig.align="center"}
+
+knitr::include_graphics("Combined Plots/ClusterProfiler_Up.png")
+```
+
+```{r, echo=FALSE, fig.cap="Gene network analysis with down regulated genes.", out.width="110%", fig.align="center"}
+
+knitr::include_graphics("Combined Plots/Gene_Network_Down.png")
+```
+
+```{r, echo=FALSE, fig.cap="Gene network analysis with up regulated genes.", out.width="110%", fig.align="center"}
+
+knitr::include_graphics("Combined Plots/Gene_Network_Up.png")
 ```
 
 ## Appendix B: Pipeline Code {#appendix-B}
