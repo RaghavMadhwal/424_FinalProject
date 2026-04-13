@@ -56,6 +56,7 @@ dds_hisat <- dds_hisat[keep_global,]
 # Remaining genes
 nrow(dds_hisat)
 ```
+
 ```{r}
 # QC, check if the difference in the groups is happening due to the treatment
 # Use VST normalization to make variance somewhat constant (accounting for low expression genes)
@@ -112,13 +113,14 @@ barplot(colSums(counts(dds_hisat)),
         ylab="Library Size", 
         las=2, 
         cex.names=0.5)
-dev.off()
 ```
+
 ```{r}
 # Run DESeq2
 
 dds_complete <- DESeq(dds_hisat)
 ```
+
 ```{r}
 resultsNames(dds_complete)
 levels(dds_complete$condition)

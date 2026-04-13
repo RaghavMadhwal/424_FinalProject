@@ -92,11 +92,10 @@ summary(res_salmon)
 ```{r}
 vsd <- vst(dds_salmon, blind=FALSE)
 
-# 1. Capture the PCA data first so we can manipulate it
+# Capture the PCA data first so we can manipulate it
 pcaData <- plotPCA(vsd, intgroup="condition", returnData=TRUE)
 percentVar <- round(100 * attr(pcaData, "percentVar"))
 
-# 2. Build the professional plot
 ggplot(pcaData, aes(PC1, PC2, color=condition)) +
   geom_point(size=3) +
   xlab(paste0("PC1: ", percentVar[1], "% variance")) +
@@ -112,7 +111,7 @@ ggplot(pcaData, aes(PC1, PC2, color=condition)) +
 ```{r}
 colSums(counts(dds_salmon))
 
-# Plot it to see if any sample is dramatically smaller/larger
+# Plot to see if any sample is dramatically smaller/larger
 barplot(colSums(counts(dds_salmon)), 
         main="Total Reads per Sample", 
         ylab="Library Size", 
@@ -129,6 +128,7 @@ sig_genes <- subset(resLFC, padj < 0.05 & abs(log2FoldChange) > 1)
 
 print(paste("Final Significant Gene Count:", nrow(sig_genes)))
 ```
+
 ```{r}
 sig_genes$symbol <- rownames(sig_genes)
 
