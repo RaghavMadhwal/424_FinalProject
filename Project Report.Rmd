@@ -75,12 +75,13 @@ knitr::include_graphics("Combined Plots/Read_Counts.png")
 
 To ensure data integrity for downstream differential expression, we performed data cleaning by removing duplicate counts and stripping ENSEMBL version numbers from row labels. Low count genes (less than 10 counts across all replicates) were dropped to reduce noise.
 
-Both pipelines demonstrated perfect separation between the MEL (sensitive) and MEL-R (resistant) clusters along the first principal component (PC1). This confirms that the transition to a resistant phenotype is the dominant driver of transcriptomic change, validating the initial pipeline results. Interestingly, in the HISAT2 pipeline PC1 covers 99% of the variance which is unusually high, compared to the Salmon method in which PC1 covers only 39%, with a stronger contribution from PC2. The overwhelming variance coverage by PC1 in the HISAT pipeline could mean that there is some oversimplification of the transcriptomic landscape, which leads to a more straightforward differentiation between the samples along one component. To investigate the extreme variance distribution observed in the HISAT2 pipeline (99% PC1), we analyzed the top gene loadings contributing to PC1. In the HISAT2 workflow, PC1 was dominated by genes such as Car1 and Pgk1. Conversely, the Salmon pipeline’s PC1 was characterized by regulatory signaling genes, including Rassf4 and Rac2. The fact that Salmon attributes only 39% of variance to PC1, despite achieving the same perfect cluster separation as HISAT2, suggests that pseudo-alignment captures a more granular and multi-faceted regulatory landscape. This could indicate that while HISAT2 is highly effective for identifying large shifts in cellular state, Salmon provides a more sensitive method for uncovering the specific signaling pathways.
+Both pipelines demonstrated perfect separation between the MEL (sensitive) and MEL-R (resistant) clusters along the first principal component (PC1). This confirms that the transition to a resistant phenotype is the dominant driver of transcriptomic change, validating the initial pipeline results. Interestingly, in the HISAT2 pipeline PC1 covers 99% of the variance which is unusually high, compared to the Salmon method in which PC1 covers only 39%, with a stronger contribution from PC2. The overwhelming variance coverage by PC1 in the HISAT pipeline could mean that there is some oversimplification of the transcriptomic landscape, which leads to a more straightforward differentiation between the samples along one component. To investigate the extreme variance distribution observed in the HISAT2 pipeline (99% PC1), we analyzed the top gene loadings contributing to PC1. In the HISAT2 workflow, PC1 was dominated by genes such as Car1 and Pgk1. Conversely, the Salmon pipeline's PC1 was characterized by regulatory signaling genes, including Rassf4 and Rac2. The fact that Salmon attributes only 39% of variance to PC1, despite achieving the same perfect cluster separation as HISAT2, suggests that pseudo-alignment captures a more granular and multi-faceted regulatory landscape. This could indicate that while HISAT2 is highly effective for identifying large shifts in cellular state, Salmon provides a more sensitive method for uncovering the specific signaling pathways.
 
 ```{r, echo=FALSE, fig.cap="Principal Component Analysis (PCA) of MEL vs. MEL-R samples, comparing HISAT2 (left) and Salmon (right). For HISAT2 PC1 covers an overwhelming 99% of the variance, whereas for Salmon PC1 covers far less: 39%. The distinct separation of the treatment groups confirms strong reproducibility between replicates and strong biological signal.", fig.height=6, fig.width=10, out.width="100%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/PCA.png")
 ```
+
 ### d. DESeq2
 
 To perform differential expression analysis we used the DESeq2 package in R. Specifying the condition as part of the experimental design to ensure we are comparing the cell types based on treatment (resistant vs. sensitive). We applied Log-Fold-Change shrinkage (using apeglm library) to account for high noise or low-count genes, giving us more conservative and reliable results.
@@ -98,13 +99,13 @@ To assess the global transcriptomic shift between the sensitive and resistant ph
 knitr::include_graphics("Combined Plots/Fig 1A.png")
 ```
 
-While the macro-level patterns of expression are consistent across both methods, the gene ordering and visual "texturing" of the heatmaps are different. Notably, the Salmon heatmap exhibits more prominent "white" regions (representing genes with expression levels near the mean). This increased granularity is likely a result of Salmon’s conservative quasi-mapping and transcript-level resolution. The separation of the heatmaps into distinct upregulated (red) and downregulated (blue) blocks provides clear evidence of a robust biological signal, validating the effectiveness of the induction protocol and our downstream normalization.
+While the macro-level patterns of expression are consistent across both methods, the gene ordering and visual "texturing" of the heatmaps are different. Notably, the Salmon heatmap exhibits more prominent "white" regions (representing genes with expression levels near the mean). This increased granularity is likely a result of Salmon's conservative quasi-mapping and transcript-level resolution. The separation of the heatmaps into distinct upregulated (red) and downregulated (blue) blocks provides clear evidence of a robust biological signal, validating the effectiveness of the induction protocol and our downstream normalization.
 
 #### ii. Top 50 Significant Gene Differential Expression (Fig 1B - Fernández-Calleja et al., 2017)
 
-To analyze the most impactful drivers of resistance, we narrowed our focus to the top 50 differentially expressed genes (DEGs) ranked by statistical significance. This replication of the reference study’s Figure 1B highlights the specific gene candidates that define each pipeline's output.
+To analyze the most impactful drivers of resistance, we narrowed our focus to the top 50 differentially expressed genes (DEGs) ranked by statistical significance. This replication of the reference study's Figure 1B highlights the specific gene candidates that define each pipeline's output.
 
-In Figure 1 of the reference paper, the authors emphasize that the transition to resistance is defined by a "cytoskeletal collapse," specifically the silencing of the actin regulatory network. Our **Top 50 Significant Gene** heatmaps (Figure 5) successfully capture this phenomenon: the Salmon results identify the significant downregulation of **Was** and **Rac2** which are two essential signaling controllers of actin polymerization, while **HISAT2** identifies the loss of **Sptan1** (alpha-spectrin), a critical physical scaffold for erythroid membrane stability. Although it is important to note that our analysis found many genes that were not previously reported by the authors, which could be attributed to the newer “alignment” methods and newer genome used in this replication.
+In Figure 1 of the reference paper, the authors emphasize that the transition to resistance is defined by a "cytoskeletal collapse," specifically the silencing of the actin regulatory network. Our **Top 50 Significant Gene** heatmaps (Figure 5) successfully capture this phenomenon: the Salmon results identify the significant downregulation of **Was** and **Rac2** which are two essential signaling controllers of actin polymerization, while **HISAT2** identifies the loss of **Sptan1** (alpha-spectrin), a critical physical scaffold for erythroid membrane stability. Although it is important to note that our analysis found many genes that were not previously reported by the authors, which could be attributed to the newer "alignment" methods and newer genome used in this replication.
 
 ```{r, echo=FALSE, fig.cap="Expression profiles of top 50 differentially expressed genes, ranked by adjusted p value after filtering for Log Fold Change > 1. Expression Values are Z-score normalized to highlight relative difference between MEL and MEL-R (Resistant) samples.", fig.height=6, fig.width=10, out.width="80%", fig.align="center"}
 
@@ -118,7 +119,7 @@ knitr::include_graphics("Combined Plots/Fig 1B.png")
 knitr::include_graphics("Combined Plots/Fig 1C.png")
 ```
 
-Our Histone Specific heatmap (Figure 6) provides a strong replication of the paper’s Figure 1C, showing a robust and uniform upregulation of histone family transcripts (such as **H2bc21** and **H2ax**) in the MEL-R replicates. To achieve this we searched the significant gene list for all candidate genes that matched the following regex: "^H[0-9]|hist", as well as the mentioned genes from the paper. Noticeably, the heatmaps differ on a substantial portion (top) where we see a large blue region for the HISAT2 pipeline. Also, curiously one sample for the Salmon pipeline exhibited down regulation where the other replicates for the MEL-R samples showed up regulation.
+Our Histone Specific heatmap (Figure 6) provides a strong replication of the paper's Figure 1C, showing a robust and uniform upregulation of histone family transcripts (such as **H2bc21** and **H2ax**) in the MEL-R replicates. To achieve this we searched the significant gene list for all candidate genes that matched the following regex: "\^H[0-9]\|hist", as well as the mentioned genes from the paper. Noticeably, the heatmaps differ on a substantial portion (top) where we see a large blue region for the HISAT2 pipeline. Also, curiously one sample for the Salmon pipeline exhibited down regulation where the other replicates for the MEL-R samples showed up regulation.
 
 ### f. Pathway Analysis
 
@@ -136,8 +137,6 @@ The downregulated GO analysis illustrates a clear difference between Salmon and 
 knitr::include_graphics("Combined Plots/ClusterProfiler_Up.png")
 ```
 
-
-
 ```{r, echo=FALSE, fig.cap="Gene-concept network (cnetplot) of downregulated pathways. Network visualization showing connections between the significantly enriched GO terms and they associated differentially expressed genes, comparing HISAT (left) and Salmon (right) results. Network shows that Salmon pipeline results are driven by histone genes whereas the HISAT pipeline identifies clusters related to cellular structure and development.", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/Gene_Network_Down.png")
@@ -150,8 +149,6 @@ As shown in the Downregulated cnetplot (Figure 9), this seems to be driven by a 
 knitr::include_graphics("Combined Plots/Gene_Network_Up.png")
 ```
 
-
-
 ## Conclusion
 
 The re-analysis of the MEL and MEL-R datasets confirms the biological findings from Fernández-Calleja et al., 2017. Despite modernizing every component of the data processing pipeline, the core results stayed quite consistent. Actin cytoskeletal genes (Was, Btk, Rac2, Dock2, and Plek) are downregulated in differentiation-resistant MEL-R cells, while histone genes are upregulated. The key biological process in the original study (collapse of the actin cytokskeletal network and remodeling of the epigenetic structure) stayed consistent in the re-analysis.
@@ -160,7 +157,7 @@ The difference in pathways found between the two pipelines do suggest that pipel
 
 A key limitation of this study was the reduced sequencing depth of two of the MEL-R samples (SRR3707580 and SRR3707585). This could have limited the detection of more subtle differential expression changes. Additionally, the original study derived the cell lines from the same parent cultures. There is a possibility that repeating this study with multiple parent cultures could show a more varied result.
 
-## References 
+## References
 
 Fernández-Calleja, V., Hernández, P., Schvartzman, J. B., Lacoba, M. G. de, & Krimer, D. B. (2017). Differential gene expression analysis by RNA-seq reveals the importance of actin cytoskeletal proteins in erythroleukemia cells. PeerJ, 5, e3432. <https://doi.org/10.7717/peerj.3432>
 
@@ -327,7 +324,6 @@ metadata <- data.frame(row.names = table$Run, condition = factor(table$cell_line
 sample_ids <- c("SRR3707574", "SRR3707575", "SRR3707576", "SRR3707577", "SRR3707578", "SRR3707579", "SRR3707580", "SRR3707581", "SRR3707582", "SRR3707583", "SRR3707584", "SRR3707585")
 
 files <- file.path("salmon_quant", paste0(sample_ids, "_quant.sf"))
-# 2. Verify
 print(file.exists(files))
 # Read the first Salmon file for debugging
 test_quant <- read.table(files[1], header = TRUE, sep = "\t")
@@ -338,8 +334,7 @@ head(test_quant$Name)
 clean_salmon <- function(file) {
   # Read the original file
   raw <- read.table(file, header = TRUE, sep = "\t")
-    # Use regex to keep only the part before the first pipe or dot
-  # This turns "ENSMUST00000193812.2|ENSMUSG..." into "ENSMUST00000193812"
+    # Use regex
   raw$Name <- gsub("\\..*|\\|.*", "", raw$Name)
     return(raw)}
 tx2gene <- AnnotationDbi::select(org.Mm.eg.db, keys = keys(org.Mm.eg.db), columns = c("ENSEMBLTRANS", "SYMBOL"))
@@ -380,7 +375,7 @@ barplot(colSums(counts(dds_salmon)),
         las=2, 
         cex.names=0.5)
 
-# Apply the shrinkage (using the existing coefficient)
+# Apply the shrinkage
 resLFC <- lfcShrink(dds_salmon, coef=2, type="apeglm")
 # Filter using (p-adj < 0.05 and |LFC| > 1)
 sig_genes <- subset(resLFC, padj < 0.05 & abs(log2FoldChange) > 1)
@@ -405,18 +400,18 @@ plot_matrix <- assay(vsd)[rownames(top50_sig), ]
 rownames(plot_matrix) <- top50_sig$symbol
 plot_matrix_scaled <- t(scale(t(plot_matrix)))
 
-# Forces the scale from -2 to 3
+# Forces the scale from -2 to 3 - like the paper
 my_breaks <- seq(-2, 3, length.out = 101)
 my_colors <- colorRampPalette(c("navy", "white", "firebrick3"))(100)
 pheatmap(plot_matrix_scaled, breaks = my_breaks, legend_breaks = c(-2, -1, 0, 1, 2, 3), cluster_rows = TRUE, cluster_cols = TRUE, show_rownames = TRUE, scale = "none", annotation_col = as.data.frame(colData(dds_salmon)[, "condition", drop=FALSE]), color = my_colors, main = "Salmon - Replication Fig 1B: Adjusted Range (-2 to 3)")
 
 #Figure 1B - Direct Replica using their gene names
 paper_list <- c(
-  "Spi1",      # The master regulator (formerly Sfpi1/PU.1)
-  "Was", "Btk", "Rac2", "Dock2", "Plek", # The "Core Five" they discuss
-  "Nckap1l", "Fgd3", "Arhgef10l", "Thy1", "Itgb2", # Actin regulatory network
-  "Coro1a", "Evl", "Lcp2", "Vav1", "Hcls1", "Cd48", # Hematopoietic signaling
-  "Bin2", "Inpp5d", "Ptprc", "Cyba", "Ncf1", "Ncf2", "Ncf4" # Additional hits
+  "Spi1",      
+  "Was", "Btk", "Rac2", "Dock2", "Plek", 
+  "Nckap1l", "Fgd3", "Arhgef10l", "Thy1", "Itgb2", 
+  "Coro1a", "Evl", "Lcp2", "Vav1", "Hcls1", "Cd48",
+  "Bin2", "Inpp5d", "Ptprc", "Cyba", "Ncf1", "Ncf2", "Ncf4"
 )
 paper_subset <- sig_genes[sig_genes$symbol %in% paper_list, ]
 plot_matrix <- assay(vsd)[rownames(paper_subset), ]
@@ -428,37 +423,34 @@ pheatmap(plot_matrix_scaled, breaks = my_breaks, legend_breaks = c(-2, -1, 0, 1,
 
 # Figure 1C - Histone
 histone_list <- c(
-  "H2ax", "H1f0", "H1f2", "H3f3b", "H2afz", # Core Histones
-  "Hmgb1", "Hmgb2", # High mobility group proteins
-  "Sptan1", "Gatad2a", "Psmc3", # Chromatin remodeling/associated
-  "Anxa2", "Top2a", "Dppa5a" # Other markers from their 1C/1D
+  "H2ax", "H1f0", "H1f2", "H3f3b", "H2afz",
+  "Hmgb1", "Hmgb2",
+  "Sptan1", "Gatad2a", "Psmc3",
+  "Anxa2", "Top2a", "Dppa5a"
   )
-# 2. Extract from your 1,633 sig_genes
-# We use %in% to find the matches in your 'symbol' column
+
 histone_subset <- sig_genes[sig_genes$symbol %in% histone_list, ]
-# 3. Prepare the matrix (using VSD data we already calculated)
 mat_1c <- assay(vsd)[rownames(histone_subset), ]
 rownames(mat_1c) <- histone_subset$symbol
-# 4. Manual Scaling to -2 to 3
+
 mat_1c_scaled <- t(scale(t(mat_1c)))
-pheatmap(mat_1c_scaled, breaks = my_breaks,# Using the -2 to 3 scale from before
-         legend_breaks = c(-2, -1, 0, 1, 2, 3), cluster_rows = TRUE, cluster_cols = FALSE, # Keep MEL on left, MEL-R on right
+pheatmap(mat_1c_scaled, breaks = my_breaks,
+         legend_breaks = c(-2, -1, 0, 1, 2, 3), cluster_rows = TRUE, cluster_cols = FALSE,
          show_rownames = TRUE, fontsize_row = 11, scale = "none", annotation_col = as.data.frame(colData(dds_salmon)[, "condition", drop=FALSE]), color = my_colors, main = "Replication Fig 1C: Histone & Chromatin Signature")
 
 # Cluster Profiler
 genes_down <- sig_genes[sig_genes$log2FoldChange < 0, "symbol"]
 genes_up <- sig_genes[sig_genes$log2FoldChange > 0, "symbol"]
-# 2. Run GO Enrichment for Downregulated genes (The "Identity Loss")
-ego_down <- enrichGO(gene = genes_down, OrgDb = org.Mm.eg.db, keyType = 'SYMBOL', ont = "BP", # Biological Process
+ego_down <- enrichGO(gene = genes_down, OrgDb = org.Mm.eg.db, keyType = 'SYMBOL', ont = "BP", 
 pAdjustMethod = "BH", pvalueCutoff  = 0.05)
-# 3. Visualizing the top 10 lost pathways
+
 dotplot(ego_down, showCategory=10)
 
 genelist_vector <- sig_genes$log2FoldChange
 names(genelist_vector) <- sig_genes$symbol
 cnetplot(ego_down, foldChange = genelist_vector, 
-         layout = "kk", # 'kk' is Kamada-Kawai, often cleaner than circular
-         showCategory = 5, # Focuses on the top 5 most significant pathways
+         layout = "kk",
+         showCategory = 5, 
          color_category = "firebrick")
 ```
 
@@ -504,10 +496,9 @@ print("Top 10 Genes contributing to PC1:")
 gene_symbols <- mapIds(org.Mm.eg.db, keys = rownames(top_10_pc1_genes), column = "SYMBOL", keytype = "ENSEMBL", multiVals = "first")
 print(gene_symbols)
 
-# 1. Capture the PCA data first so we can manipulate it
 pcaData <- plotPCA(vsd, intgroup="condition", returnData=TRUE)
 percentVar <- round(100 * attr(pcaData, "percentVar"))
-# 2. Build the professional plot
+
 ggplot(pcaData, aes(PC1, PC2, color=condition)) + geom_point(size=3) + xlab(paste0("PC1: ", percentVar[1], "% variance")) + ylab(paste0("PC2: ", percentVar[2], "% variance")) + coord_cartesian(ylim = c(-3, 3)) + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.title = element_text(size=12, face="bold"))
 
 # Sum the counts for each column (sample)
@@ -558,11 +549,11 @@ pheatmap(plot_matrix_scaled, breaks = my_breaks, legend_breaks = c(-2, -1, 0, 1,
 
 #Figure 1B - Direct Replica using their gene names
 paper_list <- c(
-  "Spi1",      # (formerly Sfpi1/PU.1)
-  "Was", "Btk", "Rac2", "Dock2", "Plek", # The "Core Five" they discuss
-  "Nckap1l", "Fgd3", "Arhgef10l", "Thy1", "Itgb2", # Actin regulatory network
-  "Coro1a", "Evl", "Lcp2", "Vav1", "Hcls1", "Cd48", # Hematopoietic signaling
-  "Bin2", "Inpp5d", "Ptprc", "Cyba", "Ncf1", "Ncf2", "Ncf4" # Additional
+  "Spi1",
+  "Was", "Btk", "Rac2", "Dock2", "Plek",
+  "Nckap1l", "Fgd3", "Arhgef10l", "Thy1", "Itgb2",
+  "Coro1a", "Evl", "Lcp2", "Vav1", "Hcls1", "Cd48",
+  "Bin2", "Inpp5d", "Ptprc", "Cyba", "Ncf1", "Ncf2", "Ncf4"
 )
 
 paper_subset <- sig_genes[sig_genes$symbol %in% paper_list, ]
@@ -575,8 +566,7 @@ my_colors <- colorRampPalette(c("navy", "white", "firebrick3"))(100)
 pheatmap(plot_matrix_scaled, breaks = my_breaks, legend_breaks = c(-2, -1, 0, 1, 2, 3), cluster_rows = TRUE, cluster_cols = FALSE, show_rownames = TRUE, fontsize_row = 10, scale = "none", annotation_col = as.data.frame(colData(dds_complete)[, "condition", drop=FALSE]), color = my_colors, main = "Replication Fig 1B: Targeted Paper Gene Set (-2 to 3)")
 
 core_targets <- c("Hmgb1", "Hmgb2", "Sptan1", "Gatad2a", "Psmc3", "Anxa2", "Top2a", "Dppa5a")
-# ^H[0-9] catches H1, H2, H3, H4
-# hist catches anything with "histone" in the name
+# regex definition
 pattern <- "^H[0-9]|hist"
 
 histone_subset <- sig_genes[grepl(pattern, sig_genes$symbol, ignore.case = TRUE) | 
@@ -596,4 +586,18 @@ if(nrow(histone_subset) >= 2) {
 genelist_vector <- sig_genes$log2FoldChange
 names(genelist_vector) <- sig_genes$symbol
 cnetplot(ego_down, foldChange = genelist_vector, layout = "kk", showCategory = 5, color_category = "firebrick")
+
+genes_down <- sig_genes[sig_genes$log2FoldChange < 0, "symbol"]
+genes_up <- sig_genes[sig_genes$log2FoldChange > 0, "symbol"]
+
+
+ego_down <- enrichGO(gene          = genes_down,
+                     OrgDb         = org.Mm.eg.db,
+                     keyType       = 'SYMBOL',
+                     ont           = "BP",
+                     pAdjustMethod = "BH",
+                     pvalueCutoff  = 0.05)
+
+dotplot(ego_down, showCategory=10) + 
+  ggtitle("Pathways Lost in Resistant MEL-R Cells")
 ```
