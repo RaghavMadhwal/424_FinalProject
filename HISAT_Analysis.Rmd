@@ -286,6 +286,21 @@ cnetplot(ego_down,
 dev.off()
 ```
 
+```{r}
+genes_down <- sig_genes[sig_genes$log2FoldChange < 0, "symbol"]
+genes_up <- sig_genes[sig_genes$log2FoldChange > 0, "symbol"]
+
+
+ego_down <- enrichGO(gene          = genes_down,
+                     OrgDb         = org.Mm.eg.db,
+                     keyType       = 'SYMBOL',
+                     ont           = "BP",
+                     pAdjustMethod = "BH",
+                     pvalueCutoff  = 0.05)
+
+dotplot(ego_down, showCategory=10) + 
+  ggtitle("Pathways Lost in Resistant MEL-R Cells")
+```
 
 
 
