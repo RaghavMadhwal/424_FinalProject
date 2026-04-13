@@ -167,6 +167,18 @@ Claude was used to make pipeline code: <https://claude.ai/share/4a01406c-0372-47
 
 Google Gemini was used for R analysis: <https://gemini.google.com/share/602846987f74>, <https://gemini.google.com/share/ba893efa520c>
 
+GEO Database: http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE83567
+
+fastp: https://github.com/OpenGene/fastp
+
+HISAT2: https://daehwankimlab.github.io/hisat2/
+
+featureCounts (Subread): https://subread.sourceforge.net/
+
+Salmon: https://combine-lab.github.io/salmon/
+
+clusterProfiler: https://bioconductor.org/packages/clusterProfiler/
+
 ## Appendix A: Pipeline Code {#appendix-A}
 
 ```{bash, eval=FALSE}
