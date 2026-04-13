@@ -163,6 +163,8 @@ Fernández-Calleja, V., Hernández, P., Schvartzman, J. B., Lacoba, M. G. de, & 
 
 Claude was used to make pipeline code: <https://claude.ai/share/4a01406c-0372-4794-a1f5-cd3a6b785e2c>
 
+Google Gemini was used for R analysis: <https://gemini.google.com/share/602846987f74>, <https://gemini.google.com/share/ba893efa520c>
+
 ## Appendix A: Pipeline Code {#appendix-A}
 
 ```{bash, eval=FALSE}
