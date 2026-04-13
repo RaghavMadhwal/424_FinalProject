@@ -67,47 +67,47 @@ You can also embed plots, for example:
 library(knitr)
 ```
 
-```{r, echo=FALSE, fig.cap="Read counts, comparing Salmon vs. HISAT.", out.width="110%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Comparison of sequencing depth and mapping between HISAT2 and Salmon. Total read counts per sample are shown with HISAT2 (left) and Salmon (right). While sample to sample counts remain similar between the two methods, the total magnitude of reads is significantly lower using Salmon.", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/Read_Counts.png")
 ```
 
-```{r, echo=FALSE, fig.cap="PCA plot comparing Salmon to HISAT2 results.", out.width="110%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Principal Component Analysis (PCA) of MEL vs. MEL-R samples, comparing HISAT2 (left) and Salmon (right). For HISAT2 PC1 covers an overwhelming 99% of the variance, whereas for Salmon PC1 covers far less: 39%. The distinct seperation of the treatment groups confirms strong reproduciblity between replicates and strong biological signal.", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/PCA.png")
 ```
 
-```{r, echo=FALSE, fig.cap="Fig 1A Replication, genes ordered by adjusted p value for each method.", out.width="110%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Fig 1A Replication from study. Shows total gene heatmap, ordered by significance (p adjusted value). Importantly, the treatment groups (MEL and MEL-R) are clsutered together in both cases and show similar expression patterns. However, the ordering of significance is clearly different between the methods.", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/Fig 1A.png")
 ```
 
-```{r, echo=FALSE, fig.cap="Fig 1B Replication, top 50 genes from each method.", out.width="110%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Fig 1B Replication from study. Expression profiles of top 50 differentially expressed genes, ranked by adjusted p value after filtering for Log Fold Change > 1. Expression Values are Z-score normalized to highlight relative difference between MEL and MEL-R (Resistant) samples.", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/Fig 1B.png")
 ```
 
-```{r, echo=FALSE, fig.cap="Fig 1C Replication, histone gene expression.", out.width="110%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Fig 1C Replication from study. Expression profiles of top significant histone related genes.", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/Fig 1C.png")
 ```
 
-```{r, echo=FALSE, fig.cap="Cluster Profiler analysis with Go, down regulated / lost pathways.", out.width="110%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Comparative Gene Ontology (GO) enrichment analysis of downregulated biological processes. The dot plots illustrate top enriched GO terms for genes downregulated in MEL-R cells compared to MEL cells. Showing the differences resulting from using the two methods (HISAT2 vs. Salmon).", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/ClusterProfiler_Down.png")
 ```
 
-```{r, echo=FALSE, fig.cap="Cluster Profiler analysis with Go, up regulated / gained pathways.", out.width="110%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Comparative Gene Ontology (GO) enrichment analysis of  biological upregulated processes. The dot plots illustrate top enriched GO terms for genes upregulated in MEL-R cells compared to MEL cells. Showing the differences resulting from using the two methods (HISAT2 vs. Salmon).", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/ClusterProfiler_Up.png")
 ```
 
-```{r, echo=FALSE, fig.cap="Gene network analysis with down regulated genes.", out.width="110%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Gene-concept network (cnetplot) of downregulated pathways. Network visualization showing connections between the significantly enriched GO terms and they associated differentially expressed genes, comparing HISAT (left) and Salmon (right) results. Network shows that Salmon pipeline results are driven by histone genes whereas the HISAT pipeline identifies clusters related to cellular structure and development.", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/Gene_Network_Down.png")
 ```
 
-```{r, echo=FALSE, fig.cap="Gene network analysis with up regulated genes.", out.width="110%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Gene-concept network (cnetplot) of upregulated pathways. Comparative analysis for HISAT (left) and Salmon (right) show significant difference. HISAT results reveal a highly dense and interconnected set of genes relating to leukocyte and myeloid cell activation.", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/Gene_Network_Up.png")
 ```
