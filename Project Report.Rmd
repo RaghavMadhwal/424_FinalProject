@@ -137,7 +137,7 @@ The downregulated GO analysis illustrates a clear difference between Salmon and 
 knitr::include_graphics("Combined Plots/ClusterProfiler_Up.png")
 ```
 
-```{r, echo=FALSE, fig.cap="Gene-concept network (cnetplot) of downregulated pathways. Network visualization showing connections between the significantly enriched GO terms and they associated differentially expressed genes, comparing HISAT (left) and Salmon (right) results. Network shows that Salmon pipeline results are driven by histone genes whereas the HISAT pipeline identifies clusters related to cellular structure and development.", out.width="110%", fig.align="center"}
+```{r, echo=FALSE, fig.cap="Gene-concept network (cnetplot) of downregulated pathways. Network visualization showing connections between the significantly enriched GO terms and their associated differentially expressed genes, comparing HISAT (left) and Salmon (right) results. Network shows that Salmon pipeline results are driven by histone genes whereas the HISAT pipeline identifies clusters related to cellular structure and development.", out.width="110%", fig.align="center"}
 
 knitr::include_graphics("Combined Plots/Gene_Network_Down.png")
 ```
@@ -149,7 +149,7 @@ As shown in the Downregulated cnetplot (Figure 9), this seems to be driven by a 
 knitr::include_graphics("Combined Plots/Gene_Network_Up.png")
 ```
 
-The HISAT2 upregulated network (Figure 10, Left) is the extremely dense in connections. Genes such as Was, Btk, Rac2, Spi1, Dock2, Vav1, Ptprc, and Itgb2 connect multiple immune and cell activation pathways, indicating these components could be part of a signaling program that defines MEL cell identity.
+The HISAT2 upregulated network (Figure 10, Left) is extremely dense in connections. Genes such as Was, Btk, Rac2, Spi1, Dock2, Vav1, Ptprc, and Itgb2 connect multiple immune and cell activation pathways, indicating these components could be part of a signaling program that defines MEL cell identity.
 
 ## Conclusion
 
